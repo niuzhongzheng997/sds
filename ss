@@ -153,3 +153,44 @@ Author: Senior AWS Solutions Architect
 This design provides a robust, enterprise-ready foundation for mastering your AWS costs. Implementation can begin immediately with Phase 1.
 
 ---
+
+
+
+二、 核心服务选型与理由
+数据源: AWS Cost and Usage Report (CUR)
+
+理由: 这是AWS最详尽、最准确的账单数据来源。它提供了逐行的、包含所有资源的用量和成本信息（包括标签），并每小时更新一次。它直接满足了您对“EC2 instance, EC2 others等”详尽信息的需求。
+
+存储 (中间 & 最终): Amazon S3
+
+理由: S3是持久性、可用性极高的对象存储，是CUR报告输出的默认目的地，也是我们进行数据处理的中转站。成本低廉，非常适合存储海量账单数据。
+
+数据处理: AWS Glue & Amazon Athena
+
+AWS Glue (数据目录): 用于自动爬取CUR报告的Schema（结构），并在Glue Data Catalog中创建表，使其能够被Athena查询。
+
+Amazon Athena: 无服务器的交互式查询服务，使用标准SQL即可直接分析S3中的数据。我们将使用它来按月分区查询和生成月度报告，避免使用脚本进行复杂的文本处理。
+
+自动化与编排: AWS Lambda & Amazon EventBridge
+
+AWS Lambda: 无服务器计算服务。我们将编写两个Lambda函数：
+
+月度报告生成器 (Monthly Report Generator): 由EventBridge定时触发，执行Athena查询，将月度数据写入处理后的S3桶。
+
+报告分发器 (Report Distributor): 被新报告生成的事件触发，负责将报告上传至HCP并发送邮件。
+
+Amazon EventBridge: 无服务器事件总线。用于监听S3事件（如新CUR文件到达、新月度报告生成）和创建定时规则（如每月1号触发报告生成），是实现整个流程自动化的“中枢神经”。
+
+推送与存储
+
+邮件推送: Amazon Simple Email Service (SES)
+
+理由: 安全、成本效益高的批量邮件发送服务，完美满足邮件推送需求。
+
+对象存储: Hitachi Content Platform (HCP)
+
+实现: HCP通常支持S3兼容的API。我们将在Lambda函数中使用AWS SDK for Python (Boto3) 或 Java，通过S3 API将生成的报告PUT到HCP的指定桶中。
+
+趋势可视化: Amazon QuickSight
+
+理由: 无服务器的BI服务，可直接连接到Athena或S3中的CUR数据，轻松拖拽即可创建丰富的仪表板和趋势线图表，成本低廉。
