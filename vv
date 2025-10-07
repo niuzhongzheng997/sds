@@ -1,29 +1,229 @@
-以下是一个礼貌且专业的英文邮件草稿，你可以发给Jurrien：
-
----
-
-**Subject:** Update on My Work Plan for Next Week & Catchup Session Conflict  
-
-Hi Jurrien,  
-
-I hope this email finds you well.  
-
-Due to the National Day holiday, I won’t be able to attend the catchup session scheduled for next Monday. I wanted to proactively share my work plan for the upcoming week to keep you updated.  
-
-As discussed, our goal is to **automate the generation, storage, distribution, and analysis of detailed AWS cost and usage reports**. The solution aims to provide granular cost visibility—especially by application tags—with zero manual intervention for new applications, all built on the **Grafana platform**.  
-
-Next week, my focus will be on **exploring and evaluating different approaches** to implement this solution effectively. This will include:  
-1. Researching available tools and integrations (e.g., AWS Cost and Usage Reports, Athena, Grafana plugins).  
-2. Investigating how to automate report generation and storage using AWS services.  
-3. Exploring ways to visualize and analyze cost data by application tags in Grafana.  
-
-Please let me know if you have any suggestions or additional requirements. I’m happy to adjust my plan based on your feedback.  
-
-Looking forward to hearing your thoughts!  
-
-Best regards,  
-[Your Name]  
-
----
-
-这封邮件清晰表达了你的工作计划，同时说明了缺席的原因，显得专业且周到。
+{
+  "dashboard": {
+    "id": null,
+    "title": "AWS Service Cost Monitoring",
+    "tags": ["aws", "cost", "monitoring"],
+    "style": "dark",
+    "timezone": "browser",
+    "panels": [
+      {
+        "id": 1,
+        "title": "AWS Service Cost Trends",
+        "type": "timeseries",
+        "targets": [
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "your-datasource-uid"
+            },
+            "expr": "aws_ec2_instances_cost",
+            "refId": "A"
+          },
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "your-datasource-uid"
+            },
+            "expr": "aws_ec2_other_cost",
+            "refId": "B"
+          },
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "your-datasource-uid"
+            },
+            "expr": "aws_cloudwatch_cost",
+            "refId": "C"
+          },
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "your-datasource-uid"
+            },
+            "expr": "aws_total_cost",
+            "refId": "D"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "palette-classic"
+            },
+            "custom": {
+              "drawStyle": "line",
+              "lineInterpolation": "linear",
+              "barAlignment": 0,
+              "lineWidth": 2,
+              "fillOpacity": 0,
+              "gradientMode": "none",
+              "spanNulls": false,
+              "showPoints": "auto",
+              "pointSize": 5,
+              "stacking": {
+                "mode": "none",
+                "group": "A"
+              },
+              "axisPlacement": "auto",
+              "axisLabel": "",
+              "scaleDistribution": {
+                "type": "linear"
+              },
+              "axisCenteredZero": false,
+              "hideFrom": {
+                "tooltip": false,
+                "viz": false,
+                "legend": false
+              }
+            },
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                },
+                {
+                  "color": "red",
+                  "value": 80
+                }
+              ]
+            },
+            "mappings": [],
+            "unit": "currencyUSD",
+            "decimals": 2
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 0
+        },
+        "options": {
+          "tooltip": {
+            "mode": "single",
+            "sort": "none"
+          },
+          "legend": {
+            "displayMode": "list",
+            "placement": "bottom",
+            "calcs": []
+          }
+        }
+      },
+      {
+        "id": 2,
+        "title": "Service Cost Distribution",
+        "type": "timeseries",
+        "targets": [
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "your-datasource-uid"
+            },
+            "expr": "aws_ec2_instances_cost",
+            "refId": "A"
+          },
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "your-datasource-uid"
+            },
+            "expr": "aws_ec2_other_cost",
+            "refId": "B"
+          },
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "your-datasource-uid"
+            },
+            "expr": "aws_cloudwatch_cost",
+            "refId": "C"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "palette-classic"
+            },
+            "custom": {
+              "drawStyle": "line",
+              "lineInterpolation": "linear",
+              "barAlignment": 0,
+              "lineWidth": 2,
+              "fillOpacity": 10,
+              "gradientMode": "none",
+              "spanNulls": false,
+              "showPoints": "auto",
+              "pointSize": 5,
+              "stacking": {
+                "mode": "normal",
+                "group": "A"
+              },
+              "axisPlacement": "auto",
+              "axisLabel": "",
+              "scaleDistribution": {
+                "type": "linear"
+              },
+              "axisCenteredZero": false,
+              "hideFrom": {
+                "tooltip": false,
+                "viz": false,
+                "legend": false
+              }
+            },
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                },
+                {
+                  "color": "red",
+                  "value": 80
+                }
+              ]
+            },
+            "mappings": [],
+            "unit": "currencyUSD",
+            "decimals": 2
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 0
+        },
+        "options": {
+          "tooltip": {
+            "mode": "single",
+            "sort": "none"
+          },
+          "legend": {
+            "displayMode": "list",
+            "placement": "bottom",
+            "calcs": []
+          }
+        }
+      }
+    ],
+    "time": {
+      "from": "now-7d",
+      "to": "now"
+    },
+    "timepicker": {},
+    "templating": {
+      "list": []
+    },
+    "refresh": "5s",
+    "version": 1,
+    "schemaVersion": 37
+  },
+  "folderTitle": "AWS Monitoring",
+  "message": "AWS Service Cost Monitoring Dashboard",
+  "overwrite": true
+}
