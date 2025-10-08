@@ -1,234 +1,261 @@
-{
-  "dashboard": {
-    "id": null,
-    "title": "AWS Service Cost Monitoring",
-    "tags": ["aws", "cost", "monitoring"],
-    "style": "dark",
-    "timezone": "browser",
-    "panels": [
-      {
-        "id": 1,
-        "title": "AWS Service Cost Trends",
-        "type": "timeseries",
-        "targets": [
-          {
-            "datasource": {
-              "type": "prometheus",
-              "uid": "your-datasource-uid"
-            },
-            "expr": "aws_ec2_instances_cost",
-            "refId": "A"
-          },
-          {
-            "datasource": {
-              "type": "prometheus",
-              "uid": "your-datasource-uid"
-            },
-            "expr": "aws_ec2_other_cost",
-            "refId": "B"
-          },
-          {
-            "datasource": {
-              "type": "prometheus",
-              "uid": "your-datasource-uid"
-            },
-            "expr": "aws_cloudwatch_cost",
-            "refId": "C"
-          },
-          {
-            "datasource": {
-              "type": "prometheus",
-              "uid": "your-datasource-uid"
-            },
-            "expr": "aws_total_cost",
-            "refId": "D"
-          }
-        ],
-        "fieldConfig": {
-          "defaults": {
-            "color": {
-              "mode": "palette-classic"
-            },
-            "custom": {
-              "drawStyle": "line",
-              "lineInterpolation": "linear",
-              "barAlignment": 0,
-              "lineWidth": 2,
-              "fillOpacity": 0,
-              "gradientMode": "none",
-              "spanNulls": false,
-              "showPoints": "auto",
-              "pointSize": 5,
-              "stacking": {
-                "mode": "none",
-                "group": "A"
-              },
-              "axisPlacement": "auto",
-              "axisLabel": "",
-              "scaleDistribution": {
-                "type": "linear"
-              },
-              "axisCenteredZero": false,
-              "hideFrom": {
-                "tooltip": false,
-                "viz": false,
-                "legend": false
-              }
-            },
-            "thresholds": {
-              "mode": "absolute",
-              "steps": [
-                {
-                  "color": "green",
-                  "value": null
-                },
-                {
-                  "color": "red",
-                  "value": 80
-                }
-              ]
-            },
-            "mappings": [],
-            "unit": "currencyUSD",
-            "decimals": 2
-          },
-          "overrides": []
-        },
-        "gridPos": {
-          "h": 8,
-          "w": 12,
-          "x": 0,
-          "y": 0
-        },
-        "options": {
-          "tooltip": {
-            "mode": "single",
-            "sort": "none"
-          },
-          "legend": {
-            "displayMode": "list",
-            "placement": "bottom",
-            "calcs": []
-          }
-        }
-      },
-      {
-        "id": 2,
-        "title": "Service Cost Distribution",
-        "type": "timeseries",
-        "targets": [
-          {
-            "datasource": {
-              "type": "prometheus",
-              "uid": "your-datasource-uid"
-            },
-            "expr": "aws_ec2_instances_cost",
-            "refId": "A"
-          },
-          {
-            "datasource": {
-              "type": "prometheus",
-              "uid": "your-datasource-uid"
-            },
-            "expr": "aws_ec2_other_cost",
-            "refId": "B"
-          },
-          {
-            "datasource": {
-              "type": "prometheus",
-              "uid": "your-datasource-uid"
-            },
-            "expr": "aws_cloudwatch_cost",
-            "refId": "C"
-          }
-        ],
-        "fieldConfig": {
-          "defaults": {
-            "color": {
-              "mode": "palette-classic"
-            },
-            "custom": {
-              "drawStyle": "line",
-              "lineInterpolation": "linear",
-              "barAlignment": 0,
-              "lineWidth": 2,
-              "fillOpacity": 10,
-              "gradientMode": "none",
-              "spanNulls": false,
-              "showPoints": "auto",
-              "pointSize": 5,
-              "stacking": {
-                "mode": "normal",
-                "group": "A"
-              },
-              "axisPlacement": "auto",
-              "axisLabel": "",
-              "scaleDistribution": {
-                "type": "linear"
-              },
-              "axisCenteredZero": false,
-              "hideFrom": {
-                "tooltip": false,
-                "viz": false,
-                "legend": false
-              }
-            },
-            "thresholds": {
-              "mode": "absolute",
-              "steps": [
-                {
-                  "color": "green",
-                  "value": null
-                },
-                {
-                  "color": "red",
-                  "value": 80
-                }
-              ]
-            },
-            "mappings": [],
-            "unit": "currencyUSD",
-            "decimals": 2
-          },
-          "overrides": []
-        },
-        "gridPos": {
-          "h": 8,
-          "w": 12,
-          "x": 12,
-          "y": 0
-        },
-        "options": {
-          "tooltip": {
-            "mode": "single",
-            "sort": "none"
-          },
-          "legend": {
-            "displayMode": "list",
-            "placement": "bottom",
-            "calcs": []
-          }
-        }
-      }
-    ],
-    "time": {
-      "from": "now-7d",
-      "to": "now"
-    },
-    "timepicker": {},
-    "templating": {
-      "list": []
-    },
-    "refresh": "5s",
-    "version": 1,
-    "schemaVersion": 37
-  },
-  "folderTitle": "AWS Monitoring",
-  "message": "AWS Service Cost Monitoring Dashboard",
-  "overwrite": true
-}
-CXech36NWW2xtqfc
-One of the things we want to do is to get live (-ish) data on cloud spend on a per-application/per-batch level and have weekly/monthly reports (with nice graphs) sent out
- 
-So per account, we want to look at e.g. tags to get a sense of which app/service/batch is costing how much and see how that evolves over time
- 
+# Solution 2: AWS CUR + Athena + Grafana - Implementation Steps (Post-S3 Storage)
+
+## 1. Architecture Overview
+```
+AWS CUR → S3 Bucket → Glue Data Catalog → Athena → Grafana
+```
+
+## 2. Step-by-Step Implementation (After S3 Storage)
+
+### Step 1: AWS Glue Data Catalog Setup
+- **Create Glue Database**:
+  - Database name: `cost_analysis`
+  - Description: "AWS Cost and Usage Reports database"
+
+- **Configure Glue Crawler**:
+  - Target: S3 path where CUR reports are stored (`s3://your-bucket/cost-reports/`)
+  - Schedule: Daily execution (e.g., cron(0 2 * * ? *))
+  - Schema update policy: Update in database
+  - Create IAM role with S3 and Glue permissions
+
+### Step 2: Athena Table Creation and Configuration
+- **Automatic Table Discovery**:
+  - Run Glue Crawler to automatically discover table structure
+  - Crawler infers schema from CUR Parquet files
+  - Creates table with proper column definitions and data types
+
+- **Manual Table Definition (Alternative)**:
+  ```sql
+  CREATE EXTERNAL TABLE cost_analysis.cost_usage_reports (
+      identity_line_item_id string,
+      line_item_usage_start_date timestamp,
+      line_item_product_code string,
+      line_item_usage_amount double,
+      line_item_unblended_cost decimal(16,8),
+      resource_tags_user_application string,
+      resource_tags_user_environment string,
+      resource_tags_user_batchid string
+  )
+  PARTITIONED BY (year string, month string)
+  STORED AS PARQUET
+  LOCATION 's3://your-bucket/cost-reports/';
+  ```
+
+### Step 3: Partition Management
+- **Automatic Partition Updates**:
+  ```sql
+  MSCK REPAIR TABLE cost_analysis.cost_usage_reports;
+  ```
+- **Schedule partition maintenance** using Lambda or EventBridge
+- Ensure new monthly partitions are automatically discovered
+
+### Step 4: Create Optimized Views for Common Queries
+
+#### 4.1 Application Cost View
+```sql
+CREATE OR REPLACE VIEW cost_analysis.cost_by_application AS
+SELECT 
+    date_trunc('day', line_item_usage_start_date) as usage_date,
+    resource_tags_user_application as application,
+    resource_tags_user_environment as environment,
+    SUM(line_item_unblended_cost) as daily_cost,
+    SUM(line_item_usage_amount) as daily_usage
+FROM cost_analysis.cost_usage_reports
+WHERE resource_tags_user_application IS NOT NULL
+GROUP BY 1, 2, 3;
+```
+
+#### 4.2 Batch Cost View
+```sql
+CREATE OR REPLACE VIEW cost_analysis.cost_by_batch AS
+SELECT 
+    date_trunc('hour', line_item_usage_start_date) as usage_hour,
+    resource_tags_user_batchid as batch_id,
+    resource_tags_user_application as application,
+    line_item_product_code as service,
+    SUM(line_item_unblended_cost) as hourly_cost
+FROM cost_analysis.cost_usage_reports
+WHERE resource_tags_user_batchid IS NOT NULL
+GROUP BY 1, 2, 3, 4;
+```
+
+#### 4.3 Recent Costs View
+```sql
+CREATE OR REPLACE VIEW cost_analysis.recent_costs AS
+SELECT 
+    resource_tags_user_application as application,
+    resource_tags_user_batchid as batch_id,
+    line_item_product_code as service,
+    SUM(line_item_unblended_cost) as cost
+FROM cost_analysis.cost_usage_reports
+WHERE line_item_usage_start_date >= current_timestamp - interval '24' hour
+GROUP BY 1, 2, 3;
+```
+
+### Step 5: Grafana Athena Data Source Configuration
+- **Install Athena Plugin** (if not present):
+  ```bash
+  grafana-cli plugins install grafana-athena-datasource
+  ```
+
+- **Configure Data Source**:
+  - Name: `Athena`
+  - Type: `grafana-athena-datasource`
+  - AWS Region: `us-east-1` (or your region)
+  - Catalog: `AWSDataCatalog`
+  - Database: `cost_analysis`
+  - Workgroup: `primary`
+  - Configure AWS authentication (IAM role or access keys)
+
+### Step 6: Grafana Dashboard Creation with Time Series
+
+#### 6.1 Application Cost Trends
+```sql
+-- Time Series Query
+SELECT 
+    date_format(usage_date, '%Y-%m-%d') as time,
+    application,
+    SUM(daily_cost) as cost
+FROM cost_analysis.cost_by_application
+WHERE 
+    usage_date >= FROM_ISO8601_TIMESTAMP('${__from:date:iso}')
+    AND usage_date <= FROM_ISO8601_TIMESTAMP('${__to:date:iso}')
+    ${APPLICATION:+AND application IN (${APPLICATION:csv})}
+GROUP BY 1, 2
+ORDER BY 1
+```
+
+#### 6.2 Batch Cost Monitoring
+```sql
+-- Batch-level Time Series
+SELECT 
+    date_format(usage_hour, '%Y-%m-%d %H:00:00') as time,
+    batch_id,
+    application,
+    SUM(hourly_cost) as cost
+FROM cost_analysis.cost_by_batch
+WHERE 
+    usage_hour >= FROM_ISO8601_TIMESTAMP('${__from:date:iso}')
+    AND usage_hour <= FROM_ISO8601_TIMESTAMP('${__to:date:iso}')
+    AND batch_id IS NOT NULL
+GROUP BY 1, 2, 3
+ORDER BY 1, 4 DESC
+```
+
+### Step 7: Template Variables for Interactive Dashboards
+
+#### 7.1 Application Variable
+```sql
+-- Variable Query
+SELECT DISTINCT resource_tags_user_application 
+FROM cost_analysis.cost_usage_reports 
+WHERE resource_tags_user_application IS NOT NULL
+ORDER BY 1
+```
+
+#### 7.2 Time Range Variable
+- Type: Interval
+- Values: `1h`, `2h`, `6h`, `12h`, `1d`, `7d`, `30d`
+- Default: `7d`
+
+### Step 8: Advanced Analytics Queries
+
+#### 8.1 Week-over-Week Comparison
+```sql
+WITH weekly_data AS (
+    SELECT 
+        date_trunc('week', usage_date) as week_start,
+        application,
+        SUM(daily_cost) as weekly_cost,
+        LAG(SUM(daily_cost), 1) OVER (
+            PARTITION BY application ORDER BY date_trunc('week', usage_date)
+        ) as previous_week_cost
+    FROM cost_analysis.cost_by_application
+    WHERE usage_date >= current_date - interval '8' week
+    GROUP BY 1, 2
+)
+SELECT 
+    week_start as time,
+    application,
+    weekly_cost,
+    previous_week_cost,
+    CASE 
+        WHEN previous_week_cost > 0 THEN 
+            ((weekly_cost - previous_week_cost) / previous_week_cost) * 100
+        ELSE NULL
+    END as week_over_week_change
+FROM weekly_data
+ORDER BY 1 DESC, 3 DESC;
+```
+
+#### 8.2 Cost Anomaly Detection
+```sql
+SELECT 
+    line_item_usage_start_date as time,
+    resource_tags_user_application as application,
+    line_item_unblended_cost as cost
+FROM cost_analysis.cost_usage_reports
+WHERE 
+    line_item_usage_start_date >= current_date - interval '7' day
+    AND line_item_unblended_cost > (
+        SELECT AVG(line_item_unblended_cost) * 3
+        FROM cost_analysis.cost_usage_reports
+        WHERE line_item_usage_start_date >= current_date - interval '30' day
+    )
+ORDER BY line_item_unblended_cost DESC;
+```
+
+### Step 9: Automation and Monitoring
+
+#### 9.1 Automated Data Processing
+- **EventBridge Rule**: Trigger Lambda when new CUR files arrive in S3
+- **Lambda Function**: 
+  - Update Athena partitions (`MSCK REPAIR TABLE`)
+  - Refresh materialized views
+  - Validate data quality
+
+#### 9.2 Data Freshness Monitoring
+```sql
+-- Monitor CUR data latency
+SELECT 
+    MAX(line_item_usage_start_date) as latest_data_timestamp,
+    CURRENT_TIMESTAMP as current_timestamp,
+    date_diff('hour', MAX(line_item_usage_start_date), CURRENT_TIMESTAMP) as hours_behind
+FROM cost_analysis.cost_usage_reports
+WHERE line_item_usage_start_date >= CURRENT_DATE - INTERVAL '7' DAY
+```
+
+### Step 10: Performance Optimization
+
+#### 10.1 Query Optimization
+- Use partitioned columns in WHERE clauses
+- Create aggregated summary tables for frequent queries
+- Use appropriate file formats (Parquet recommended)
+- Implement query result caching
+
+#### 10.2 Cost Control
+- Monitor Athena query costs and data scanned
+- Use columnar formats to minimize data scanning
+- Implement query timeouts and limits
+- Set up billing alerts for Athena usage
+
+## 3. Key Advantages of Solution 2
+
+### Granular Data Access
+- Raw, detailed cost and usage data
+- Flexible querying capabilities
+- Historical trend analysis
+- Custom aggregations
+
+### Real-time Capabilities
+- Near real-time data (CUR updates hourly/daily)
+- Immediate access to detailed records
+- Flexible time range selection
+
+### Advanced Analytics
+- Complex joins and calculations
+- Custom business logic
+- Machine learning integration potential
+- Multi-dimensional analysis
+
+This solution provides comprehensive cost visibility with the flexibility of SQL-based analysis and the power of time series visualization in Grafana.
