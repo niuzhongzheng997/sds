@@ -122,6 +122,9 @@
 ## 5. Automate Data Updates
 - Since CUR reports are updated periodically, ensure Athena table partitions are synchronized
 - Set up a Lambda function to automatically run `MSCK REPAIR TABLE` to update partitions after CUR report updates
+- Set up a Lambda function that listens for S3 event notifications and automatically triggers when new CUR reports are delivered. This Lambda will start a Glue Crawler to discover and register new partitions, making fresh cost data immediately queryable in Athena.
+
+
 
 ## 6. Set Up Alerts and Reporting (Optional)
 - Configure alerts in Grafana, or use Athena query results to trigger alerts
