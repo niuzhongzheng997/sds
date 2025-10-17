@@ -141,3 +141,6 @@ if __name__ == "__main__":
     # 打印结果的前几行
     print("\n合并结果预览:")
     print(result1.head())
+
+
+ValueError: You are trying to merge on object and float64 columns for key 'project'. If you wish to proceed you should use pd.concat
