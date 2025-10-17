@@ -1,0 +1,164 @@
+import pandas as pd
+import os
+from typing import List, Union
+
+def merge_user_files_to_base(
+    base_file_path: str,
+    user_files: Union[str, List[str]],
+    output_path: str = None,
+    base_columns: List[str] = None,
+    key_columns: List[str] = ['app_id', 'year_month_str']
+) -> pd.DataFrame:
+
+    print(f"Reading base file: {base_file_path}")
+    if base_columns:
+        base_df = pd.read_csv(base_file_path, names=base_columns)
+    else:
+        base_df = pd.read_csv(base_file_path)
+        base_columns = base_df.columns.tolist()
+    del base_df['year_month']
+    
+    # Check if key columns exist in base file
+    for col in key_columns:
+        if col not in base_df.columns:
+            raise ValueError(f"Key column '{col}' not found in base file")
+
+    # Convert key columns to string type
+    for col in key_columns:
+        base_df[col] = base_df[col].astype(str)
+    
+    # Ensure user_files is a list
+    if isinstance(user_files, str):
+        user_files = [user_files]
+    
+    # Process each user file
+    for i, user_file in enumerate(user_files):
+        print(user_file)
+        if not os.path.exists(user_file):
+            print(f"Warning: File {user_file} does not exist, skipping")
+            continue
+            
+        print(f"Processing user file: {user_file}")
+        
+        user_df = pd.read_csv(user_file)
+        del user_df['year_month']
+        user_df.rename(columns={'sum': user_file.split('-')[1]}, inplace=True)
+        print(user_df.columns)
+        user_columns = user_df.columns.tolist()
+        
+        # Check if key columns exist in user file
+        missing_key_columns = [col for col in key_columns if col not in user_columns]
+        if missing_key_columns:
+            print(f"Warning: File {user_file} missing key columns {missing_key_columns}, skipping")
+            continue
+        
+        # Identify account columns (columns that are not key columns)
+        account_columns = [col for col in user_columns if col not in key_columns]
+        print(account_columns)
+        if not account_columns:
+            print(f"Warning: File {user_file} has no account columns (columns other than key columns {key_columns}), skipping")
+            continue
+        
+        # If multiple account columns found, use the first one
+        if len(account_columns) > 1:
+            print(f"Warning: File {user_file} has multiple non-key columns: {account_columns}, using the first one: {account_columns[0]}")
+        
+        account_column = account_columns[0]
+        print(f"  Identified account column: {account_column}")
+        
+        # Convert key columns to string type in user data
+        for col in key_columns:
+            user_df[col] = user_df[col].astype(str)
+        
+        # Extract relevant columns
+        user_data = user_df[key_columns + [account_column]].copy()
+        
+        # Rename the account column
+        new_column_name = f'{account_column}'
+        user_data = user_data.rename(columns={account_column: new_column_name})
+        print(user_data)
+        
+        # Merge with base dataframe
+        base_df = base_df.merge(
+            user_data, 
+            on=key_columns, 
+            how='left'
+        )
+        print(base_df)
+        print(f"  Successfully merged, added column: {new_column_name}")
+    
+    # Save result if output path is provided
+    if output_path:
+        base_df.to_csv(output_path, index=False)
+        print(f"Merge completed! Result saved to: {output_path}")
+    else:
+        print("Merge completed!")
+    
+    return base_df
+
+def merge_user_files_from_directory(
+    base_file_path: str,
+    user_directory: str,
+    output_path: str = None,
+    base_columns: List[str] = None,
+    key_columns: List[str] = ['a', 'b', 'c']
+) -> pd.DataFrame:
+
+    # Find all CSV files in the directory (excluding base file)
+    user_files = []
+    for file in os.listdir(user_directory):
+        if file.endswith('.csv') and file != os.path.basename(base_file_path):
+            user_files.append(os.path.join(user_directory, file))
+    
+    print(f"Found {len(user_files)} user files")
+
+    return merge_user_files_to_base(
+        base_file_path=base_file_path,
+        user_files=user_files,
+        output_path=output_path,
+        base_columns=base_columns,
+        key_columns=key_columns
+    )
+
+if __name__ == "__main__":
+    # Example usage for data files
+    result1 = merge_user_files_to_base(
+        base_file_path="AWS Cost Explorer-data.csv",
+        user_files=["AWS Cost Explorer-Account_074753629274-data.csv", 
+                   "AWS Cost Explorer-Account_296062570773-data.csv", 
+                   "AWS Cost Explorer-Account_464714954899-data.csv",
+                     "AWS Cost Explorer-Account_490670967268-data.csv",
+                     "AWS Cost Explorer-Account_517691465812-data.csv",
+                     "AWS Cost Explorer-Account_614833898510-data.csv",
+                     "AWS Cost Explorer-Account_749187906254-data.csv",
+                     "AWS Cost Explorer-Account_782988951752-data.csv",
+                     "AWS Cost Explorer-Account_846232256534-data.csv"],
+        output_path="merged_result6.csv",
+        key_columns=['app_id', 'year_month_str', 'project']  # Modify according to actual column names
+    )
+
+    # Example usage for service files
+    result2 = merge_user_files_to_base(
+        base_file_path="AWS Cost Explorer-service.csv",
+        user_files=["AWS Cost Explorer-Account_074753629274-service.csv", 
+                   "AWS Cost Explorer-Account_296062570773-service.csv", 
+                   "AWS Cost Explorer-Account_464714954899-service.csv",
+                     "AWS Cost Explorer-Account_490670967268-service.csv",
+                     "AWS Cost Explorer-Account_517691465812-service.csv",
+                     "AWS Cost Explorer-Account_614833898510-service.csv",
+                     "AWS Cost Explorer-Account_749187906254-service.csv",
+                     "AWS Cost Explorer-Account_782988951752-service.csv",
+                     "AWS Cost Explorer-Account_846232256534-service.csv"],
+        output_path="merged_result7.csv",
+        key_columns=['app_id', 'year_month_str', 'service']  # Modify according to actual column names
+    )
+
+    # Alternative usage: merge files from directory
+    # result2 = merge_user_files_from_directory(
+    #     base_file_path="base_file_A.csv",
+    #     user_directory="./user_files/",
+    #     output_path="merged_result_directory.csv",
+    #     key_columns=['project', 'department', 'category']  # Modify according to actual column names
+    # )
+    
+    print("\nMerge result preview:")
