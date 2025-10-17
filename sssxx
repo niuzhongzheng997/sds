@@ -1,0 +1,51 @@
+import pandas as pd
+
+def smart_merge_multiple_files(file_paths, key_columns, output_path):
+    """
+    智能合并：自动选择非共同列进行合并
+    """
+    all_columns_info = {}
+    dataframes = []
+    
+    # 第一步：收集所有文件的列信息
+    for file_path in file_paths:
+        df = pd.read_csv(file_path)
+        all_columns_info[file_path] = {
+            'all_columns': list(df.columns),
+            'non_key_columns': [col for col in df.columns if col not in key_columns]
+        }
+        print(f"{file_path}: {all_columns_info[file_path]['non_key_columns']}")
+    
+    # 第二步：为每个文件准备数据
+    for file_path in file_paths:
+        df = pd.read_csv(file_path)
+        
+        # 选择所有非关键列（自动包含不同名称的列）
+        df_selected = df.set_index(key_columns)
+        dataframes.append(df_selected)
+    
+    # 第三步：合并
+    merged_df = pd.concat(dataframes, axis=1, join='inner')
+    merged_df.reset_index(inplace=True)
+    
+    print(f"\n=== 合并结果 ===")
+    print(f"总列数: {len(merged_df.columns)}")
+    print(f"所有列名: {list(merged_df.columns)}")
+    print(f"数据形状: {merged_df.shape}")
+    
+    merged_df.to_csv(output_path, index=False)
+    return merged_df
+
+# ========== 调用示例 ==========
+
+# 示例1：基本调用
+file_paths = ['A.csv', 'B.csv', 'C.csv', 'D.csv', 'E.csv']
+key_columns = ['a', 'b', 'c']
+output_path = 'merged_result.csv'
+
+# 调用方法3
+result = smart_merge_multiple_files(file_paths, key_columns, output_path)
+
+# 显示前几行结果
+print("\n合并后的数据前5行:")
+print(result.head())
