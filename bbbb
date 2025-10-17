@@ -1,6 +1,13 @@
 import pandas as pd
 import os
 from typing import List, Union
+import pandas as pd
+
+df = pd.read_csv('your_file.csv')
+df['year_month'] = [f"{y}-{m}" for m, y in [x.split('-') for x in df['year_month']]]
+df.to_csv('your_file.csv', index=False)
+
+
 
 def merge_user_files_to_base(
     base_file_path: str,
