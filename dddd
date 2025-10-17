@@ -1,0 +1,23 @@
+import pandas as pd
+
+def merge_csv_simple(fileA_path, fileB_path, output_path):
+    """
+    简化版的合并函数
+    """
+    # 读取文件
+    dfA = pd.read_csv(fileA_path)
+    dfB = pd.read_csv(fileB_path)
+    
+    # 使用concat合并
+    merged_df = pd.concat([
+        dfA.set_index(['a', 'b', 'c']), 
+        dfB.set_index(['a', 'b', 'c'])[['e']]  # 只选择e列
+    ], axis=1).reset_index()
+    
+    # 保存文件
+    merged_df.to_csv(output_path, index=False)
+    
+    return merged_df
+
+# 使用示例
+# result = merge_csv_simple("fileA.csv", "fileB.csv", "output.csv")
