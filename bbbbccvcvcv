@@ -1,497 +1,143 @@
-{
-  "annotations": {
-    "list": [
-      {
-        "builtIn": 1,
-        "datasource": {
-          "type": "datasource",
-          "uid": "grafana"
-        },
-        "enable": true,
-        "hide": true,
-        "iconColor": "rgba(0, 211, 255, 1)",
-        "name": "Annotations & Alerts",
-        "target": {
-          "limit": 100,
-          "matchAny": false,
-          "tags": [],
-          "type": "dashboard"
-        },
-        "type": "dashboard"
-      }
-    ]
-  },
-  "editable": true,
-  "fiscalYearStartMonth": 0,
-  "graphTooltip": 0,
-  "id": 2600,
-  "links": [],
-  "panels": [
-    {
-      "datasource": {
-        "type": "grafana-postgresql-datasource",
-        "uid": "000000012"
-      },
-      "description": "",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "custom": {
-            "align": "left",
-            "cellOptions": {
-              "type": "auto"
-            },
-            "filterable": true,
-            "inspect": true
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green"
-              }
-            ]
-          },
-          "unit": "string"
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "service\\year_month"
-            },
-            "properties": [
-              {
-                "id": "custom.width",
-                "value": 300
-              },
-              {
-                "id": "displayName",
-                "value": "Service"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "project\\year_month"
-            },
-            "properties": [
-              {
-                "id": "custom.width",
-                "value": 300
-              },
-              {
-                "id": "displayName",
-                "value": "Project"
-              }
-            ]
-          }
-        ]
-      },
-      "gridPos": {
-        "h": 15,
-        "w": 24,
-        "x": 0,
-        "y": 0
-      },
-      "id": 9,
-      "options": {
-        "cellHeight": "sm",
-        "footer": {
-          "countRows": false,
-          "enablePagination": true,
-          "fields": "",
-          "reducer": [
-            "sum"
-          ],
-          "show": true
-        },
-        "showHeader": true,
-        "sortBy": [
-          {
-            "desc": true,
-            "displayName": "Apr 2025"
-          }
-        ]
-      },
-      "pluginVersion": "11.6.6",
-      "targets": [
-        {
-          "datasource": {
-            "type": "grafana-postgresql-datasource",
-            "uid": "000000012"
-          },
-          "editorMode": "code",
-          "format": "table",
-          "group": [],
-          "metricColumn": "none",
-          "rawQuery": true,
-          "rawSql": "select\r\n  app_id, year_month_str, year_month, $aggr_by_col, sum(cost_amount)\r\nfrom\r\n  $aggr_by\r\nwhere\r\n  app_id in ($app_id)\r\n  AND (\r\n    'VARIABLE_ALL_VALUES' IN ($account_id)\r\n    OR accountid in ($account_id)\r\n  )\r\ngroup by app_id, year_month_str, year_month, $aggr_by_col\r\norder by year_month_str",
-          "refId": "A",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "column"
-              }
-            ]
-          ],
-          "sql": {
-            "columns": [
-              {
-                "parameters": [],
-                "type": "function"
-              }
-            ],
-            "groupBy": [
-              {
-                "property": {
-                  "type": "string"
-                },
-                "type": "groupBy"
-              }
-            ],
-            "limit": 50
-          },
-          "timeColumn": "time",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ]
-        }
-      ],
-      "title": "AWS Cost Explorer",
-      "transformations": [
-        {
-          "id": "groupingToMatrix",
-          "options": {
-            "columnField": "year_month",
-            "emptyValue": "zero",
-            "rowField": "$aggr_by_col",
-            "valueField": "sum"
-          }
-        },
-        {
-          "id": "sortBy",
-          "options": {
-            "fields": {},
-            "sort": [
-              {
-                "field": "year_month"
-              }
-            ]
-          }
-        }
-      ],
-      "type": "table"
-    },
-    {
-      "collapsed": false,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 15
-      },
-      "id": 11,
-      "panels": [],
-      "repeat": "account_id",
-      "title": "Cost for Account: $account_id",
-      "type": "row"
-    },
-    {
-      "datasource": {
-        "type": "grafana-postgresql-datasource",
-        "uid": "000000012"
-      },
-      "description": "",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "custom": {
-            "align": "left",
-            "cellOptions": {
-              "type": "auto"
-            },
-            "filterable": true,
-            "inspect": true
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green"
-              }
-            ]
-          },
-          "unit": "string"
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "service\\year_month"
-            },
-            "properties": [
-              {
-                "id": "custom.width",
-                "value": 300
-              },
-              {
-                "id": "displayName",
-                "value": "Service"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "project\\year_month"
-            },
-            "properties": [
-              {
-                "id": "custom.width",
-                "value": 300
-              },
-              {
-                "id": "displayName",
-                "value": "Project"
-              }
-            ]
-          }
-        ]
-      },
-      "gridPos": {
-        "h": 15,
-        "w": 24,
-        "x": 0,
-        "y": 16
-      },
-      "id": 10,
-      "options": {
-        "cellHeight": "sm",
-        "footer": {
-          "countRows": false,
-          "enablePagination": true,
-          "fields": "",
-          "reducer": [
-            "sum"
-          ],
-          "show": true
-        },
-        "showHeader": true,
-        "sortBy": [
-          {
-            "desc": true,
-            "displayName": "Apr 2025"
-          }
-        ]
-      },
-      "pluginVersion": "11.6.6",
-      "targets": [
-        {
-          "datasource": {
-            "type": "grafana-postgresql-datasource",
-            "uid": "000000012"
-          },
-          "editorMode": "code",
-          "format": "table",
-          "group": [],
-          "metricColumn": "none",
-          "rawQuery": true,
-          "rawSql": "select\r\n  app_id, year_month_str, year_month, $aggr_by_col, sum(cost_amount)\r\nfrom\r\n  $aggr_by\r\nwhere\r\n  app_id in ($app_id)\r\n  AND (\r\n    'VARIABLE_ALL_VALUES' IN ($account_id)\r\n    OR accountid in ($account_id)\r\n  )\r\ngroup by app_id, year_month_str, year_month, $aggr_by_col\r\norder by year_month_str",
-          "refId": "A",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "column"
-              }
-            ]
-          ],
-          "sql": {
-            "columns": [
-              {
-                "parameters": [],
-                "type": "function"
-              }
-            ],
-            "groupBy": [
-              {
-                "property": {
-                  "type": "string"
-                },
-                "type": "groupBy"
-              }
-            ],
-            "limit": 50
-          },
-          "timeColumn": "time",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ]
-        }
-      ],
-      "title": "AWS Cost Explorer",
-      "transformations": [
-        {
-          "id": "groupingToMatrix",
-          "options": {
-            "columnField": "year_month",
-            "emptyValue": "zero",
-            "rowField": "$aggr_by_col",
-            "valueField": "sum"
-          }
-        },
-        {
-          "id": "sortBy",
-          "options": {
-            "fields": {},
-            "sort": [
-              {
-                "field": "year_month"
-              }
-            ]
-          }
-        }
-      ],
-      "type": "table"
-    }
-  ],
-  "preload": false,
-  "refresh": "",
-  "schemaVersion": 41,
-  "tags": [
-    "AWS",
-    "Account",
-    "Cost"
-  ],
-  "templating": {
-    "list": [
-      {
-        "allValue": "'VARIABLE_ALL_VALUES'",
-        "allowCustomValue": false,
-        "current": {
-          "text": "50513",
-          "value": "50513"
-        },
-        "datasource": {
-          "type": "grafana-postgresql-datasource",
-          "uid": "000000012"
-        },
-        "definition": "select distinct app_id from account_environments where status='ACTIVE' and app_id is not null and app_id != '' order by 1",
-        "includeAll": true,
-        "label": "App ID",
-        "name": "app_id",
-        "options": [],
-        "query": "select distinct app_id from account_environments where status='ACTIVE' and app_id is not null and app_id != '' order by 1",
-        "refresh": 1,
-        "regex": "",
-        "type": "query"
-      },
-      {
-        "allValue": "'VARIABLE_ALL_VALUES'",
-        "allowCustomValue": false,
-        "current": {
-          "text": "All",
-          "value": "$__all"
-        },
-        "datasource": {
-          "type": "postgres",
-          "uid": "000000012"
-        },
-        "definition": "select distinct accountid from account_environments\nwhere status='ACTIVE'\nand app_id in ($app_id)\norder by 1",
-        "includeAll": true,
-        "label": "Account ID",
-        "multi": true,
-        "name": "account_id",
-        "options": [],
-        "query": "select distinct accountid from account_environments\nwhere status='ACTIVE'\nand app_id in ($app_id)\norder by 1",
-        "refresh": 1,
-        "regex": "",
-        "type": "query"
-      },
-      {
-        "allowCustomValue": false,
-        "current": {
-          "text": "v_aws_cost_by_project",
-          "value": "v_aws_cost_by_project"
-        },
-        "label": "Aggregation By",
-        "name": "aggr_by",
-        "options": [
-          {
-            "selected": false,
-            "text": "service",
-            "value": "v_aws_cost_by_service"
-          },
-          {
-            "selected": true,
-            "text": "project",
-            "value": "v_aws_cost_by_project"
-          }
-        ],
-        "query": "service : v_aws_cost_by_service,project : v_aws_cost_by_project",
-        "type": "custom"
-      },
-      {
-        "allowCustomValue": false,
-        "current": {
-          "text": "project",
-          "value": "project"
-        },
-        "description": "",
-        "hide": 2,
-        "label": "aggr_by_col",
-        "name": "aggr_by_col",
-        "options": [
-          {
-            "selected": true,
-            "text": "project",
-            "value": "project"
-          }
-        ],
-        "query": "${aggr_by:text}",
-        "type": "custom"
-      }
-    ]
-  },
-  "time": {
-    "from": "now-6h",
-    "to": "now"
-  },
-  "timepicker": {
-    "hidden": true,
-    "refresh_intervals": [
-      "1m",
-      "5m",
-      "15m",
-      "30m",
-      "1h",
-      "2h",
-      "1d"
-    ]
-  },
-  "timezone": "",
-  "title": "AWS Cost Explorer",
-  "uid": "cey7n8f3kg5j4a",
-  "version": 2
-}
+好的，我将通过文字详细描述如何实现用户级计算资源成本追踪，不包含代码。
+
+### 核心思路
+
+要实现用户级计费追踪，最核心的思路是：**在为用户创建或分配计算资源的瞬间，就给该资源打上代表该用户的唯一标签**。这样，AWS Cost Explorer 在统计费用时，就能自动将这些费用归因到对应的用户。
+
+### 第一步：设计标签策略（准备阶段）
+
+这是最关键的基础工作，需要在任何技术实施之前完成。
+
+1.  **确定必需标签键值对**：
+    *   `user_id`： 这是最重要的标签，值是每个用户在系统中的唯一标识（如邮箱、工号、系统内ID）。
+    *   `project`： 值为项目名称，例如 `ai-training-platform`。这有助于在多个项目共用同一AWS账户时区分成本。
+    *   `cost_center`： 值为用户所属的成本中心或部门代码，例如 `rnd-dept-ai`。这是为了财务核算和内部结算。
+    *   `environment`： 值为 `production`，因为用户作业通常属于生产性任务。
+
+2.  **确定可选标签键值对**（用于更精细的分析）：
+    *   `job_id`： 每个计算任务的唯一ID。当用户的一次作业触发多个资源时，这个标签可以追溯到具体的任务。
+    *   `computation_type`： 例如 `gpu-training` 或 `cpu-batch-processing`，用于分析不同类型的计算成本。
+
+### 第二步：在资源创建流程中嵌入标签（执行阶段）
+
+这是将策略落地的过程，确保每一个产生的资源都带有身份信息。
+
+1.  **用户提交作业**：
+    *   用户通过Web界面、API或命令行工具提交一个计算任务（例如，训练一个AI模型）。
+
+2.  **后端系统处理请求**：
+    *   您的计算平台后端服务（例如，一个Python/Java服务）接收到这个请求。这个服务知道当前登录的用户是谁（通过身份认证系统）。
+
+3.  **资源调配与自动打标**：
+    *   该后端服务决定需要启动新的EC2实例，或者从计算资源池中分配一个实例来运行此任务。
+    *   **关键动作**：在后端服务调用AWS API（如`RunInstances`）创建或分配资源时，必须将第一步中设计好的标签（特别是`user_id`）作为参数的一部分传递给AWS。
+    *   **对于新启动的EC2实例**：通过API的 `TagSpecifications` 参数直接附加标签。
+    *   **对于已存在但被动态分配的实例**：在实例被分配给该用户任务之前，通过 `create-tags` API 调用为其打上本次任务的标签（如`user_id`和`job_id`）。任务完成后，可以移除或更新这些标签以准备下一次分配。
+
+### 第三步：在AWS Cost Explorer中查看和分析（分析阶段）
+
+当资源被正确标记并运行产生费用后，您就可以在Cost Explorer中看到效果。
+
+1.  **打开AWS Cost Explorer**。
+2.  **创建自定义成本报告**：
+    *   **筛选**：添加筛选条件，选择 **"Tag"**，然后选择您的关键标签，例如 `user_id`。您可以筛选特定的用户，或者查看所有带 `user_id` 标签的资源成本。
+    *   **分组**：在 **"Group by"** 中，首先选择 **"Tag"** -> `user_id`。这样，报告就会按用户来汇总成本。您还可以第二级分组选择 **"Service"**，这样就可以看到每个用户的钱主要花在EC2还是其他服务上。
+3.  **保存报告**：将此筛选和分组配置保存下来，以后就可以一键查看每个用户的月度成本。
+
+### 第四步：建立监控和告警机制（管控阶段）
+
+为了实现预算控制，需要建立自动化监控。
+
+1.  **设置月度预算**：为每个用户或部门设定一个月度预算金额。
+2.  **创建AWS Budgets**：
+    *   在AWS控制台创建预算。
+    *   在预算配置中，同样使用 **"Tag"** 作为筛选条件，选择 `user_id` 和特定的用户值。
+    *   设定预算金额和告警阈值（例如，达到预算的80%和100%时触发告警）。
+3.  **配置通知**：当阈值被触发时，AWS Budgets 可以自动发送邮件或SNS通知给该用户和财务管理员。
+
+### 总结工作流
+
+整个实现的文字描述流程如下：
+
+1.  **用户** 提交计算任务。
+2.  **后端系统** 认证用户身份，并准备资源。
+3.  **AWS API调用** 创建/分配资源，并**强制附加** `user_id=[用户ID]` 等标签。
+4.  **资源运行**，产生费用。
+5.  **AWS后台** 自动将费用记录与资源标签关联。
+6.  **管理员/用户** 在Cost Explorer中通过按 `user_id` 标签分组来查看成本。
+7.  **AWS Budgets** 监控基于 `user_id` 标签的成本，并在超支前发送告警。
+
+通过以上四个步骤，您就建立了一个完整、自动化的用户级计算资源成本追踪体系，能够清晰地回答“谁在什么时候花了多少钱”这个核心问题。
+转成英文
+Of course. Here is the English translation of the detailed description for implementing user-level computing resource cost tracking.
+
+***
+
+### Core Concept
+
+The fundamental idea to achieve user-level billing tracking is: **At the moment a computing resource is created or assigned for a user, apply a unique tag that identifies that user.** This way, AWS Cost Explorer will automatically attribute the incurred costs to the corresponding user.
+
+### Step 1: Design the Tagging Strategy (Preparation Phase)
+
+This is the most critical foundational work and must be completed before any technical implementation.
+
+1.  **Identify Mandatory Tag Key-Value Pairs**:
+    *   `user_id`: This is the most important tag. The value is a unique identifier for each user in the system (e.g., email, employee ID, internal system ID).
+    *   `project`: The value is the project name, e.g., `ai-training-platform`. This helps distinguish costs when multiple projects share the same AWS account.
+    *   `cost_center`: The value is the user's cost center or department code, e.g., `rnd-dept-ai`. This is for financial accounting and internal chargebacks.
+    *   `environment`: The value would be `production`, as user jobs are typically production tasks.
+
+2.  **Identify Optional Tag Key-Value Pairs** (for more granular analysis):
+    *   `job_id`: A unique ID for each computing task. This tag allows tracing back to a specific job when a single user task triggers multiple resources.
+    *   `computation_type`: e.g., `gpu-training` or `cpu-batch-processing`, used to analyze the costs of different types of computations.
+
+### Step 2: Embed Tags into the Resource Creation Flow (Execution Phase)
+
+This is the process of putting the strategy into practice, ensuring every resource that is spun up carries an identity.
+
+1.  **User Submits a Job**:
+    *   A user submits a computing task (e.g., training an AI model) via a web interface, API, or command-line tool.
+
+2.  **Backend System Processes the Request**:
+    *   Your computing platform's backend service (e.g., a Python/Java service) receives this request. This service knows who the currently logged-in user is (via the authentication system).
+
+3.  **Resource Provisioning and Automatic Tagging**:
+    *   The backend service decides whether to launch a new EC2 instance or assign one from a compute resource pool to run this task.
+    *   **Critical Action**: When the backend service calls the AWS API (like `RunInstances`) to create or assign a resource, it must pass the tags designed in Step 1 (especially `user_id`) as part of the parameters to AWS.
+    *   **For Newly Launched EC2 Instances**: Attach tags directly via the API's `TagSpecifications` parameter.
+    *   **For Pre-existing, Dynamically Assigned Instances**: Before the instance is assigned to the user task, use the `create-tags` API call to apply the tags for this specific task (like `user_id` and `job_id`). Upon task completion, these tags can be removed or updated to prepare the instance for the next assignment.
+
+### Step 3: Viewing and Analysis in AWS Cost Explorer (Analysis Phase)
+
+Once resources are correctly tagged and running, generating costs, you can see the results in Cost Explorer.
+
+1.  **Open AWS Cost Explorer**.
+2.  **Create a Custom Cost Report**:
+    *   **Filter**: Add a filter. Select **"Tag"**, then choose your key tag, for example, `user_id`. You can filter for a specific user or view costs for all resources with a `user_id` tag.
+    *   **Group By**: Under **"Group by"**, first select **"Tag"** -> `user_id`. This will make the report aggregate costs by user. You can add a second-level grouping by **"Service"** to see if each user's spending is primarily on EC2 or other services.
+3.  **Save the Report**: Save this filter and grouping configuration for future one-click access to monthly costs per user.
+
+### Step 4: Establish Monitoring and Alerting (Governance Phase)
+
+To implement budget control, automated monitoring needs to be set up.
+
+1.  **Set Monthly Budgets**: Define a monthly budget amount for each user or department.
+2.  **Create AWS Budgets**:
+    *   Create a budget in the AWS Console.
+    *   In the budget configuration, again use **"Tag"** as the filter condition, selecting `user_id` and the specific user value.
+    *   Set the budget amount and alert thresholds (e.g., trigger an alert at 80% and 100% of the budget).
+3.  **Configure Notifications**: When a threshold is triggered, AWS Budgets can automatically send an email or SNS notification to the user and the finance administrator.
+
+### Summary Workflow
+
+The entire implementation process, described in steps, is as follows:
+
+1.  The **User** submits a computing task.
+2.  The **Backend System** authenticates the user's identity and prepares the resource.
+3.  The **AWS API Call** creates/assigns the resource and **forcibly attaches** tags like `user_id=[UserID]`.
+4.  The **Resource Runs**, incurring costs.
+5.  The **AWS Backend** automatically associates the cost records with the resource tags.
+6.  The **Administrator/User** views the costs in Cost Explorer by grouping by the `user_id` tag.
+7.  **AWS Budgets** monitors costs based on the `user_id` tag and sends alerts before budgets are exceeded.
+
+By following these four steps, you establish a complete, automated user-level computing resource cost tracking system, capable of clearly answering the core question: "Who spent how much, and when?"
