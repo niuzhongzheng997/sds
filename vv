@@ -1,42 +1,67 @@
 import pandas as pd
 
-def merge_your_csv_files():
+def smart_merge_csv_files():
     """
-    用于合并您自己的CSV文件
+    智能合并：自动检测并保留B文件的所有非共同列
     """
-    # 请修改为您的实际文件路径
-    file_a_path = "A.csv"  # 修改为您的A文件路径
-    file_b_path = "B.csv"  # 修改为您的B文件路径
-    output_path = "merged_result.csv"  # 输出文件路径
+    file_a_path = "A.csv"
+    file_b_path = "B.csv"
+    output_path = "merged_result.csv"
     
     try:
         # 读取文件
         df_a = pd.read_csv(file_a_path)
         df_b = pd.read_csv(file_b_path)
         
-        print(f"文件A: {len(df_a)} 行, {len(df_a.columns)} 列")
-        print(f"文件B: {len(df_b)} 行, {len(df_b.columns)} 列")
-        print(f"文件A的列: {list(df_a.columns)}")
-        print(f"文件B的列: {list(df_b.columns)}")
+        print(f"文件A: {len(df_a)} 行, 列: {list(df_a.columns)}")
+        print(f"文件B: {len(df_b)} 行, 列: {list(df_b.columns)}")
         
         # 自动检测共同列
         common_columns = list(set(df_a.columns) & set(df_b.columns))
         print(f"共同列: {common_columns}")
         
+        # 自动检测B文件中非共同列
+        b_unique_columns = list(set(df_b.columns) - set(common_columns))
+        print(f"B文件独有列: {b_unique_columns}")
+        
+        if not b_unique_columns:
+            print("⚠ B文件没有独有的列")
+        else:
+            print(f"✅ 将自动保留B文件的 {len(b_unique_columns)} 个独有列")
+        
+        # 执行合并：只选择B文件的共同列和独有列
+        columns_to_keep_from_b = common_columns + b_unique_columns
+        df_b_selected = df_b[columns_to_keep_from_b]
+        
         # 执行left join合并
-        result = pd.merge(df_a, df_b, on=common_columns, how='left')
+        result = pd.merge(df_a, df_b_selected, on=common_columns, how='left')
         
         print(f"\n合并结果: {len(result)} 行, {len(result.columns)} 列")
         print(f"合并后的列: {list(result.columns)}")
         
         # 验证行数
         if len(result) == len(df_a):
-            print("✓ 成功！合并后行数与文件A一致")
+            print("✓ 行数与文件A一致")
         else:
             print("⚠ 警告：行数不一致")
         
-        # 显示前几行
-        print("\n前5行数据:")
+        # 验证B文件独有列是否都保留了
+        retained_columns = set(b_unique_columns) & set(result.columns)
+        if len(retained_columns) == len(b_unique_columns):
+            print(f"✓ B文件的所有 {len(b_unique_columns)} 个独有列都已保留: {list(retained_columns)}")
+        else:
+            missing_cols = set(b_unique_columns) - set(result.columns)
+            print(f"❌ B文件缺失的列: {list(missing_cols)}")
+        
+        # 显示各列的缺失值统计
+        print(f"\n各列非空值统计:")
+        for col in result.columns:
+            non_null_count = result[col].notna().sum()
+            null_count = len(result) - non_null_count
+            print(f"  {col}: {non_null_count} 非空, {null_count} 空值")
+        
+        # 显示前几行数据
+        print(f"\n前5行数据:")
         print(result.head())
         
         # 保存结果
@@ -47,9 +72,11 @@ def merge_your_csv_files():
         
     except Exception as e:
         print(f"错误: {e}")
+        import traceback
+        traceback.print_exc()
         return None
 
-# 运行您的文件合并
+# 运行智能合并
 if __name__ == "__main__":
-    print("开始合并您的CSV文件...")
-    merge_your_csv_files()
+    print("开始智能合并...")
+    smart_merge_csv_files()
