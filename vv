@@ -1,21 +1,55 @@
-与Vision讨论议程（Agenda for Discussion with Vision）
+import pandas as pd
 
-1. 仪表盘功能与数据维度优化（Dashboard Function & Data Dimension Optimization）
+def merge_your_csv_files():
+    """
+    用于合并您自己的CSV文件
+    """
+    # 请修改为您的实际文件路径
+    file_a_path = "A.csv"  # 修改为您的A文件路径
+    file_b_path = "B.csv"  # 修改为您的B文件路径
+    output_path = "merged_result.csv"  # 输出文件路径
+    
+    try:
+        # 读取文件
+        df_a = pd.read_csv(file_a_path)
+        df_b = pd.read_csv(file_b_path)
+        
+        print(f"文件A: {len(df_a)} 行, {len(df_a.columns)} 列")
+        print(f"文件B: {len(df_b)} 行, {len(df_b.columns)} 列")
+        print(f"文件A的列: {list(df_a.columns)}")
+        print(f"文件B的列: {list(df_b.columns)}")
+        
+        # 自动检测共同列
+        common_columns = list(set(df_a.columns) & set(df_b.columns))
+        print(f"共同列: {common_columns}")
+        
+        # 执行left join合并
+        result = pd.merge(df_a, df_b, on=common_columns, how='left')
+        
+        print(f"\n合并结果: {len(result)} 行, {len(result.columns)} 列")
+        print(f"合并后的列: {list(result.columns)}")
+        
+        # 验证行数
+        if len(result) == len(df_a):
+            print("✓ 成功！合并后行数与文件A一致")
+        else:
+            print("⚠ 警告：行数不一致")
+        
+        # 显示前几行
+        print("\n前5行数据:")
+        print(result.head())
+        
+        # 保存结果
+        result.to_csv(output_path, index=False)
+        print(f"\n结果已保存到: {output_path}")
+        
+        return result
+        
+    except Exception as e:
+        print(f"错误: {e}")
+        return None
 
-• 确认当前系统是否能获取与Equila工具相同的标签数据，若可获取，需明确仅调整仪表盘能否实现“按用户ID/BSID粒度拆分成本数据”（针对“居家同等条件场景”）。
-
-• 明确Vision团队需完成的具体工作内容及时限，以支持上述数据维度的添加，同时同步我方在Equila框架层面标注“正确标签”的配合方案。
-
-Confirm whether the current system can access the same tag data as the Equila tool. If accessible, clarify whether splitting cost data by user ID/BSID granularity (for the "equila at home case") can be achieved by only adjusting the dashboard.
-
-• Clarify the specific work content and timeline that Vision's team needs to complete to support the addition of the above data dimensions, and simultaneously synchronize our cooperation plan for marking "correct tags" at the Equila framework level.
-
-2. 自定义功能与长期使用可行性（Customization Function & Long-term Usability）
-
-• 确认是否允许创建“带自定义可视化效果的自定义仪表盘”，以及是否支持“保存邮件相关设置”，若不允许，需探讨“自动连接仪表盘以自行编写通知系统”的技术路径。
-
-• 对齐成本数据通知的初步落地方案，明确能否先实现“每周/每月成本数据自动邮件通知”（如10月13日周结、11月1日月结通知），并确认数据更新的准确性及时效性。
-
-Confirm whether custom dashboards with custom visualizations are allowed, and whether saving email-related settings is supported. If not, discuss the technical path of "automatically connecting to the dashboard to write a notification system by ourselves".
-
-• Align on the initial implementation plan for cost data notifications, clarify whether "weekly/monthly automatic email notifications of cost data" can be realized first (e.g., weekly summary on the week of October 13 and monthly summary on November 1), and confirm the accuracy and timeliness of data updates.
+# 运行您的文件合并
+if __name__ == "__main__":
+    print("开始合并您的CSV文件...")
+    merge_your_csv_files()
