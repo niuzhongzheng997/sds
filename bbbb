@@ -1,77 +1,53 @@
 import pandas as pd
 import os
 from typing import List, Union
-import pandas as pd
-
-df = pd.read_csv('your_file.csv')
-df['year_month'] = [f"{y}-{m}" for m, y in [x.split('-') for x in df['year_month']]]
-df.to_csv('your_file.csv', index=False)
-
-
 
 def merge_user_files_to_base(
     base_file_path: str,
     user_files: Union[str, List[str]],
     output_path: str = None,
     base_columns: List[str] = None,
-    key_columns: List[str] = ['a', 'b', 'c']
+    key_columns: List[str] = ['app_id', 'year_month_str']
 ) -> pd.DataFrame:
-    """
-    将用户文件合并到基准文件中
-    
-    参数:
-    base_file_path: 基准CSV文件路径
-    user_files: 用户文件路径，可以是单个文件路径或文件路径列表
-    output_path: 输出文件路径，如果为None则不保存文件
-    base_columns: 基准文件的列名，如果为None则自动读取第一行
-    key_columns: 用于合并的关键列名
-    
-    返回:
-    合并后的DataFrame
-    """
-    
-    # 读取基准文件
+
     print(f"正在读取基准文件: {base_file_path}")
     if base_columns:
         base_df = pd.read_csv(base_file_path, names=base_columns)
     else:
         base_df = pd.read_csv(base_file_path)
         base_columns = base_df.columns.tolist()
-    
-    # 确保关键列在基准文件中存在
+    del base_df['year_month']
     for col in key_columns:
         if col not in base_df.columns:
             raise ValueError(f"关键列 '{col}' 不在基准文件中")
-    
-    # 将基准文件的关键列转换为字符串类型，避免数据类型不一致
+
     for col in key_columns:
         base_df[col] = base_df[col].astype(str)
     
-    # 确保用户文件是列表形式
     if isinstance(user_files, str):
         user_files = [user_files]
     
-    # 处理每个用户文件
     for i, user_file in enumerate(user_files):
+        print(user_file)
         if not os.path.exists(user_file):
             print(f"警告: 文件 {user_file} 不存在，跳过")
             continue
             
         print(f"正在处理用户文件: {user_file}")
         
-        # 读取用户文件（不指定列名，使用文件自身的列名）
         user_df = pd.read_csv(user_file)
+        del user_df['year_month']
+        user_df.rename(columns={'sum': user_file.split('-')[1]}, inplace=True)
+        print(user_df.columns)
         user_columns = user_df.columns.tolist()
         
-        # 确保关键列在用户文件中存在
         missing_key_columns = [col for col in key_columns if col not in user_columns]
         if missing_key_columns:
             print(f"警告: 文件 {user_file} 中缺少关键列 {missing_key_columns}，跳过")
             continue
         
-        # 动态识别account列（排除key_columns后的列）
         account_columns = [col for col in user_columns if col not in key_columns]
-        
+        print(account_columns)
         if not account_columns:
             print(f"警告: 文件 {user_file} 中没有找到account列（除了关键列 {key_columns} 之外的列），跳过")
             continue
@@ -82,27 +58,22 @@ def merge_user_files_to_base(
         account_column = account_columns[0]
         print(f"  识别到account列: {account_column}")
         
-        # 将用户文件的关键列也转换为字符串类型，确保数据类型一致
         for col in key_columns:
             user_df[col] = user_df[col].astype(str)
         
-        # 创建用户数据的副本，只保留关键列和account列
         user_data = user_df[key_columns + [account_column]].copy()
         
-        # 重命名account列为唯一的列名
-        new_column_name = f'{account_column}_{i+1}'
+        new_column_name = f'{account_column}'
         user_data = user_data.rename(columns={account_column: new_column_name})
-        
-        # 将基准文件与用户数据合并
+        print(user_data)
         base_df = base_df.merge(
             user_data, 
             on=key_columns, 
             how='left'
         )
-        
+        print(base_df)
         print(f"  成功合并，新增列: {new_column_name}")
     
-    # 保存结果（如果指定了输出路径）
     if output_path:
         base_df.to_csv(output_path, index=False)
         print(f"合并完成！结果已保存到: {output_path}")
@@ -111,7 +82,6 @@ def merge_user_files_to_base(
     
     return base_df
 
-# 更简洁的版本，自动处理目录中的所有用户文件
 def merge_user_files_from_directory(
     base_file_path: str,
     user_directory: str,
@@ -119,29 +89,14 @@ def merge_user_files_from_directory(
     base_columns: List[str] = None,
     key_columns: List[str] = ['a', 'b', 'c']
 ) -> pd.DataFrame:
-    """
-    从目录中读取所有用户文件并合并到基准文件中
-    
-    参数:
-    base_file_path: 基准CSV文件路径
-    user_directory: 包含用户文件的目录路径
-    output_path: 输出文件路径
-    base_columns: 基准文件的列名，如果为None则自动读取
-    key_columns: 用于合并的关键列名
-    
-    返回:
-    合并后的DataFrame
-    """
-    
-    # 获取目录中的所有CSV文件（排除基准文件）
+
     user_files = []
     for file in os.listdir(user_directory):
         if file.endswith('.csv') and file != os.path.basename(base_file_path):
             user_files.append(os.path.join(user_directory, file))
     
     print(f"找到 {len(user_files)} 个用户文件")
-    
-    # 使用之前的函数进行合并
+
     return merge_user_files_to_base(
         base_file_path=base_file_path,
         user_files=user_files,
@@ -150,24 +105,44 @@ def merge_user_files_from_directory(
         key_columns=key_columns
     )
 
-# 使用示例
 if __name__ == "__main__":
-    # 示例1: 合并单个或多个指定文件（自动识别列名）
     result1 = merge_user_files_to_base(
-        base_file_path="base_file_A.csv",
-        user_files=["user1.csv", "user2.csv", "user3.csv"],
-        output_path="merged_result.csv",
-        key_columns=['project', 'department', 'category']  # 根据实际列名修改
+        base_file_path="AWS Cost Explorer-data.csv",
+        user_files=["AWS Cost Explorer-Account_074753629274-data.csv", 
+                   "AWS Cost Explorer-Account_296062570773-data.csv", 
+                   "AWS Cost Explorer-Account_464714954899-data.csv",
+                     "AWS Cost Explorer-Account_490670967268-data.csv",
+                     "AWS Cost Explorer-Account_517691465812-data.csv",
+                     "AWS Cost Explorer-Account_614833898510-data.csv",
+                     "AWS Cost Explorer-Account_749187906254-data.csv",
+                     "AWS Cost Explorer-Account_782988951752-data.csv",
+                     "AWS Cost Explorer-Account_846232256534-data.csv"],
+        output_path="merged_result6.csv",
+        key_columns=['app_id', 'year_month_str', 'project']  # 根据实际列名修改
     )
-    
-    # 示例2: 合并目录中的所有用户文件
-    result2 = merge_user_files_from_directory(
-        base_file_path="base_file_A.csv",
-        user_directory="./user_files/",
-        output_path="merged_result_directory.csv",
-        key_columns=['project', 'department', 'category']  # 根据实际列名修改
+
+    result2 = merge_user_files_to_base(
+        base_file_path="AWS Cost Explorer-service.csv",
+        user_files=["AWS Cost Explorer-Account_074753629274-service.csv", 
+                   "AWS Cost Explorer-Account_296062570773-service.csv", 
+                   "AWS Cost Explorer-Account_464714954899-service.csv",
+                     "AWS Cost Explorer-Account_490670967268-service.csv",
+                     "AWS Cost Explorer-Account_517691465812-service.csv",
+                     "AWS Cost Explorer-Account_614833898510-service.csv",
+                     "AWS Cost Explorer-Account_749187906254-service.csv",
+                     "AWS Cost Explorer-Account_782988951752-service.csv",
+                     "AWS Cost Explorer-Account_846232256534-service.csv"],
+        output_path="merged_result7.csv",
+        key_columns=['app_id', 'year_month_str', 'service']  # 根据实际列名修改
     )
+
     
-    # 打印结果的前几行
+    # result2 = merge_user_files_from_directory(
+    #     base_file_path="base_file_A.csv",
+    #     user_directory="./user_files/",
+    #     output_path="merged_result_directory.csv",
+    #     key_columns=['project', 'department', 'category']  # 根据实际列名修改
+    # )
+    
     print("\n合并结果预览:")
-    print(result1.head())
+    
